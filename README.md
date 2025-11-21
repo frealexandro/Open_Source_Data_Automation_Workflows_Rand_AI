@@ -1,144 +1,146 @@
-# 🤖 Flujos de Automatización con AI Open Source
+# 🤖 Open Source AI Automation Workflows
 
-## 📝 Descripción
-Este repositorio contiene una colección de flujos de automatización implementados con Python y herramientas de AI de código abierto. El objetivo es proporcionar alternativas gratuitas y escalables a las plataformas no-code tradicionales.
+![Automation workflow diagram](assets/rand_data_work_flow_ai.jpg)
 
-## 🎯 Propósito
-- Facilitar la automatización de operaciones manuales
-- Ofrecer soluciones sin límites de uso
-- Proporcionar alternativas gratuitas a herramientas como Zapier, n8n, Make, etc.
-- Evitar costos de suscripción insostenibles
-- Mejorar la escalabilidad de tus automatizaciones
+## 📝 Description
+- Currently focused on the development of an open-source data workflow framework designed to optimize cloud ETL pipelines—delivering a cost-efficient and robust alternative to n8n and Make, built with modular and scalable architecture for data engineers.
 
-## 💡 Ventajas
-- **Código Abierto**: Todo el código es transparente y modificable
-- **Sin Costos Recurrentes**: No hay suscripciones mensuales
-- **Escalable**: Puedes adaptar y mejorar los flujos según tus necesidades
-- **Documentación Clara**: Cada flujo incluye instrucciones paso a paso
-- **Infraestructura Ligera**: No requiere recursos costosos
+## 🎯 Purpose
+- Simplify the automation of manual operations
+- Provide unlimited-use solutions
+- Offer free alternatives to tools like Zapier, n8n, Make, etc.
+- Avoid unsustainable subscription costs
+- Improve the scalability of your automations
 
-## 🚀 Cómo Empezar
-1. Clona este repositorio
-2. Revisa la documentación del flujo que te interese
-3. Sigue las instrucciones paso a paso
-4. ¡Ejecuta tu automatización!
+## 💡 Advantages
+- **Open Source**: All the code is transparent and customizable
+- **No Recurring Costs**: No monthly subscriptions involved
+- **Scalable**: Adapt and improve each workflow to fit your needs
+- **Clear Documentation**: Every workflow includes step-by-step instructions
+- **Lightweight Infrastructure**: No expensive resources required
 
-## 🤝 Ayuda y Soporte
-Se recomienda usar [Cursor](https://cursor.com/) o un chat de AI para entender mejor el código. Cada flujo está documentado de manera explícita para facilitar su comprensión.
+## 🚀 Getting Started
+1. Clone this repository
+2. Review the documentation for the workflow you need
+3. Follow the step-by-step instructions
+4. Run your automation!
 
-## 🎯 Público Objetivo
-- Emprendedores
+## 🤝 Help and Support
+Using [Cursor](https://cursor.com/) or an AI assistant is recommended to better understand the code. Each workflow is documented in detail to make onboarding easier.
+
+## 🎯 Target Audience
+- Entrepreneurs
 - Startups
-- Creadores Indie
-- Desarrolladores
-- Cualquier persona que busque automatizar tareas sin costos recurrentes
+- Indie makers
+- Developers
+- Anyone looking to automate tasks without recurring costs
 
-## 📢 Nota Importante
-Este proyecto nace como respuesta a la problemática común de las herramientas no-code:
-- Altos costos de suscripción
-- Limitaciones en escalabilidad
-- Dependencia de infraestructura externa
-- Restricciones en personalización
+## 📢 Important Note
+This project was created as a response to common pain points in no-code tools:
+- High subscription costs
+- Limited scalability
+- Dependence on external infrastructure
+- Customization restrictions
 
-## 🤝 Contribuciones
-¡Las contribuciones son bienvenidas! Si tienes un flujo de automatización que quieras compartir, no dudes en crear un pull request.
+## 🤝 Contributions
+Contributions are welcome! If you have an automation workflow to share, feel free to open a pull request.
 
-## 📝 Licencia
-Este proyecto es de código abierto y está disponible bajo la licencia MIT.
+## 📝 License
+This project is open source and distributed under the MIT License.
 
 # YouTube Shorts Creator
 
-Este script automatiza la creación de shorts de YouTube a partir de videos más largos, incluyendo transcripción automática y subtítulos.
+This script automates the creation of YouTube Shorts from long-form videos, including automatic transcription and subtitles.
 
-## Características Principales
+## Key Features
 
-- Extrae segmentos aleatorios de videos largos
-- Convierte videos a formato vertical para shorts
-- Transcribe audio usando OpenAI Whisper
-- Genera subtítulos sincronizados
-- Sube automáticamente a Google Drive
-- Actualiza metadata en Google Sheets
-- Optimiza títulos y genera hashtags relevantes
+- Extracts random segments from long videos
+- Converts videos to vertical format for Shorts
+- Transcribes audio using OpenAI Whisper
+- Generates synchronized subtitles
+- Uploads files to Google Drive automatically
+- Updates metadata in Google Sheets
+- Optimizes titles and generates relevant hashtags
 
-## Requisitos
+## Requirements
 
 1. Python 3.8 o superior
-2. ffmpeg instalado en el sistema
-3. Cuenta de Google Cloud con APIs habilitadas:
+2. ffmpeg installed on the system
+3. Google Cloud account with APIs enabled:
    - Google Drive API
    - Google Sheets API
-4. Clave API de OpenAI
+4. OpenAI API key
 
-## Instalación
+## Installation
 
-1. Instalar ffmpeg:
+1. Install ffmpeg:
 ```bash
 # Ubuntu/Debian
 sudo apt-get update
 sudo apt-get install ffmpeg
 
 # Windows
-# Descargar de https://ffmpeg.org/download.html
+# Download from https://ffmpeg.org/download.html
 ```
 
-2. Instalar dependencias de Python:
+2. Install Python dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Configurar variables de entorno:
-Crear un archivo `.env` con:
+3. Configure environment variables:
+Create a `.env` file with:
 ```
-OPENAI_API_KEY=tu_clave_de_openai
-YOUTUBE_API_KEY=tu_clave_de_youtube
+OPENAI_API_KEY=your_openai_key
+YOUTUBE_API_KEY=your_youtube_key
 ```
 
-4. Configurar credenciales de Google:
-- Colocar el archivo de credenciales de servicio de Google Cloud en el directorio raíz
+4. Configure Google credentials:
+- Place the Google Cloud service account credentials file in the root directory
 
-5. Crear directorios necesarios:
+5. Create the required directories:
 ```bash
 mkdir shorts_output temp audio_transcription
 ```
 
-## Uso
+## Usage
 
 ```python
 from youtube_shorts_creator import YouTubeShortsCreator
 
-# Configurar parámetros
-num_shorts = 15  # Número de shorts a generar
-start_time_minutes = 10  # Minuto desde donde empezar
+# Configure parameters
+num_shorts = 15  # Number of shorts to generate
+start_time_minutes = 10  # Minute mark to start from
 
-# Crear instancia
+# Instantiate the creator
 creator = YouTubeShortsCreator(num_shorts=num_shorts, start_time_minutes=start_time_minutes)
 
-# Procesar video
-url = "URL_DEL_VIDEO_DE_YOUTUBE"
+# Process the video
+url = "YOUTUBE_VIDEO_URL"
 shorts = creator.process_video(url)
 ```
 
-## Costos Aproximados (basado en los logs)
+## Approximate Costs (based on logs)
 
 - Whisper API:
-  - ~$0.045 USD por 7.5 minutos de audio
-  - Aproximadamente $0.006 USD por minuto
+  - ~$0.045 USD per 7.5 minutes of audio
+  - Approximately $0.006 USD per minute
 
 - GPT-3.5:
-  - ~$0.0024 USD por tokens de entrada
-  - ~$0.0022 USD por tokens de salida
-  - Total aproximado por 15 shorts: $0.0496 USD
+  - ~$0.0024 USD for input tokens
+  - ~$0.0022 USD for output tokens
+  - Approximate total for 15 shorts: $0.0496 USD
 
-## Estructura de Directorios
+## Directory Structure
 
 ```
-├── shorts_output/      # Videos descargados
-├── temp/              # Archivos temporales
-└── audio_transcription/ # Shorts generados
+├── shorts_output/      # Downloaded videos
+├── temp/               # Temporary files
+└── audio_transcription/ # Generated shorts
 ```
 
-## Limitaciones
+## Limitations
 
-- El video debe tener suficiente duración para extraer los segmentos solicitados
-- Cada short tiene una duración fija de 30 segundos
-- Se requiere conexión a internet para las APIs de OpenAI y Google
+- The source video must be long enough to extract the requested segments
+- Each short has a fixed duration of 30 seconds
+- An internet connection is required for the OpenAI and Google APIs

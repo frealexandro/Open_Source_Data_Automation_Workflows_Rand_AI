@@ -1,22 +1,22 @@
 # 🎥 YouTube Shorts Creator & Social Media Publisher
 
-Sistema automatizado para crear y publicar contenido en múltiples plataformas sociales a partir de videos largos.
+Automated system to create and publish content across multiple social platforms from long-form videos.
 
 ## 🔒 Seguridad Importante
 
-⚠️ **NUNCA subas las credenciales a GitHub o cualquier repositorio público** ⚠️
+⚠️ **NEVER upload credentials to GitHub or any public repository** ⚠️
 
-1. **Archivos Protegidos** (no subir a git):
-   - `service_account.json` (cuenta de servicio)
-   - `.env` (variables de entorno)
-   - Cualquier archivo con credenciales
+1. **Protected Files** (do not commit to git):
+   - `service_account.json` (service account)
+   - `.env` (environment variables)
+   - Any file containing credentials
 
-2. **Verificación de Seguridad**:
+2. **Security Verification**:
    ```bash
-   # Verifica que tus credenciales están en .gitignore
+   # Confirm that your credentials are in .gitignore
    cat .gitignore | grep "service_account.json"
    
-   # Verifica que no estás rastreando el archivo
+   # Confirm that the file is not being tracked
    git status | grep "service_account.json"
    ```
 
@@ -24,87 +24,87 @@ Sistema automatizado para crear y publicar contenido en múltiples plataformas s
 
 ```mermaid
 graph TD
-    A[Video Original en Drive] -->|Descarga| B[Procesamiento de Video]
-    B -->|Extracción| C[Audio]
-    C -->|Whisper AI| D[Transcripción]
-    D -->|Análisis| E[Selección de Segmentos]
+    A[Original Video in Drive] -->|Download| B[Video Processing]
+    B -->|Extraction| C[Audio]
+    C -->|Whisper AI| D[Transcription]
+    D -->|Analysis| E[Segment Selection]
     
-    B -->|Corte| F[Generación de Shorts]
-    D -->|Subtítulos| F
+    B -->|Cutting| F[Short Generation]
+    D -->|Subtitles| F
     
-    F -->|Optimización| G[Metadata]
-    G -->|Títulos| H[Títulos Optimizados]
-    G -->|Hashtags| I[Hashtags Relevantes]
+    F -->|Optimization| G[Metadata]
+    G -->|Titles| H[Optimized Titles]
+    G -->|Hashtags| I[Relevant Hashtags]
     
     F -->|Upload| J[Google Drive]
-    J -->|Verificación| K[Google Sheets]
+    J -->|Verification| K[Google Sheets]
     
-    K -->|Aprobación| L[Publicación Multi-Plataforma]
+    K -->|Approval| L[Multi-Platform Publishing]
     L -->|YouTube| M[YouTube Shorts]
     L -->|LinkedIn| N[LinkedIn Videos]
     L -->|Instagram| O[Instagram Reels]
     L -->|TikTok| P[TikTok Videos]
 ```
 
-## 🌟 Características
+## 🌟 Features
 
-- ✂️ **Corte Inteligente**: Divide videos largos en shorts optimizados
-- 🎯 **Transcripción Automática**: Usando Whisper AI
-- 📝 **Generación de Subtítulos**: Integrados en el video
-- 🔍 **Optimización SEO**: Títulos y hashtags optimizados
-- 📊 **Gestión en Sheets**: Control y aprobación de contenido
-- 🚀 **Multi-Plataforma**: Publica en:
+- ✂️ **Smart Cutting**: Splits long videos into optimized shorts
+- 🎯 **Automatic Transcription**: Powered by Whisper AI
+- 📝 **Subtitle Generation**: Embedded directly in the video
+- 🔍 **SEO Optimization**: Titles and hashtags tuned for discovery
+- 📊 **Sheets Management**: Control and approve content centrally
+- 🚀 **Multi-Platform**: Publishes to:
   - YouTube Shorts
   - LinkedIn
   - Instagram Reels
   - TikTok
 
-## 🛠️ Requisitos
+## 🛠️ Requirements
 
 1. **Python 3.8+**
-2. **Credenciales**:
+2. **Credentials**:
    - Google Service Account (Drive, Sheets, YouTube)
    - Instagram credentials
    - LinkedIn API token
    - TikTok session ID
 
-3. **Dependencias**:
+3. **Dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-## ⚙️ Configuración
+## ⚙️ Configuration
 
-1. **Cuenta de Servicio**:
-   - Guarda `service_account.json` en el directorio raíz
-   - ⚠️ Asegúrate de que este archivo está en `.gitignore`
-   - NUNCA compartas o subas este archivo
+1. **Service Account**:
+   - Store `service_account.json` in the project root
+   - ⚠️ Ensure the file is listed in `.gitignore`
+   - NEVER share or upload this file
 
-2. **Variables de Entorno**:
-   - Crea un archivo `.env` basado en `.env.example`
-   - ⚠️ No subas el archivo `.env` a git
+2. **Environment Variables**:
+   - Create a `.env` file based on `.env.example`
+   - ⚠️ Do not commit the `.env` file to git
    ```env
-   OPENAI_API_KEY="tu_api_key"
-   YOUTUBE_API_KEY="tu_api_key"
-   INSTAGRAM_USERNAME="tu_usuario"
-   INSTAGRAM_PASSWORD="tu_contraseña"
-   LINKEDIN_ACCESS_TOKEN="tu_token"
+   OPENAI_API_KEY="your_api_key"
+   YOUTUBE_API_KEY="your_api_key"
+   INSTAGRAM_USERNAME="your_username"
+   INSTAGRAM_PASSWORD="your_password"
+   LINKEDIN_ACCESS_TOKEN="your_token"
    ```
 
 ## 🚀 Uso
 
-1. **Ejecutar el script**:
+1. **Run the script**:
    ```bash
    python publish_shorts.py
    ```
 
-2. **Flujo de trabajo**:
-   - Sube tu video largo a Google Drive
-   - El sistema procesa el video y genera shorts
-   - Revisa y aprueba en Google Sheets
-   - El sistema publica automáticamente los aprobados
+2. **Workflow**:
+   - Upload your long-form video to Google Drive
+   - The system processes the video and generates shorts
+   - Review and approve them in Google Sheets
+   - Approved items are published automatically
 
-## 📁 Estructura de Directorios
+## 📁 Directory Structure
 
 ```
 automate_scripts/
@@ -116,51 +116,51 @@ automate_scripts/
 └── shorts_output/
 ```
 
-## 🔄 Proceso Automático
+## 🔄 Automated Process
 
-1. **Procesamiento**:
-   - Descarga video de Drive
-   - Extrae audio
-   - Genera transcripción
-   - Crea shorts con subtítulos
+1. **Processing**:
+   - Download video from Drive
+   - Extract audio
+   - Generate transcription
+   - Create shorts with subtitles
 
-2. **Optimización**:
-   - Genera títulos atractivos
-   - Crea hashtags relevantes
-   - Optimiza metadata
+2. **Optimization**:
+   - Generate compelling titles
+   - Create relevant hashtags
+   - Optimize metadata
 
-3. **Publicación**:
-   - Verifica aprobaciones en Sheets
-   - Publica en plataformas configuradas
-   - Actualiza estado en Sheets
+3. **Publishing**:
+   - Check approvals in Sheets
+   - Publish to configured platforms
+   - Update status in Sheets
 
-## ⚠️ Notas Importantes
+## ⚠️ Important Notes
 
-- Los directorios de trabajo se limpian automáticamente después de cada ejecución
-- Se requieren permisos adecuados en todas las APIs
-- Verifica los límites de tamaño y duración para cada plataforma
+- Working directories are cleaned automatically after each run
+- Proper permissions are required for all APIs
+- Make sure platform-specific size and duration limits are respected
 
 ## 📝 Logs
 
-El sistema mantiene un registro detallado de:
-- Descargas de videos
-- Procesamiento de contenido
-- Publicaciones exitosas/fallidas
-- Limpieza de directorios 
+The system keeps a detailed record of:
+- Video downloads
+- Content processing steps
+- Successful/failed publications
+- Directory cleanup operations
 
-## 🛡️ Mejores Prácticas de Seguridad
+## 🛡️ Security Best Practices
 
-1. **Protección de Credenciales**:
-   - Mantén las credenciales fuera de git
-   - Usa `.gitignore` para excluir archivos sensibles
-   - Verifica regularmente que no hay credenciales expuestas
+1. **Credential Protection**:
+   - Keep credentials out of git
+   - Use `.gitignore` to exclude sensitive files
+   - Regularly verify that nothing sensitive is exposed
 
-2. **Manejo de Archivos Sensibles**:
-   - Guarda las credenciales localmente
-   - No las compartas por correo o mensajería
-   - Usa gestores de secretos cuando sea posible
+2. **Sensitive File Handling**:
+   - Store credentials locally
+   - Do not share them via email or messaging
+   - Use secret managers when possible
 
-3. **Rotación de Credenciales**:
-   - Cambia las credenciales periódicamente
-   - Revoca inmediatamente credenciales comprometidas
-   - Mantén un registro de accesos 
+3. **Credential Rotation**:
+   - Rotate credentials periodically
+   - Immediately revoke compromised keys
+   - Maintain an access log

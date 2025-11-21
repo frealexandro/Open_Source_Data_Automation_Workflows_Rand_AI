@@ -19,11 +19,11 @@ from google.oauth2 import service_account
 from datetime import datetime
 import random
 
-#! Configurar logging
+#! Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-#! Cargar variables de entorno
+#! Load environment variables
 load_dotenv()
 
 class ContentOptimizer:
@@ -31,33 +31,33 @@ class ContentOptimizer:
         if openai_client is None:
             api_key = os.getenv('OPENAI_API_KEY')
             if not api_key:
-                raise ValueError("No se encontró la clave API de OpenAI")
+                raise ValueError("OpenAI API key not found")
             self.client = OpenAI(api_key=api_key)
         else:
             self.client = openai_client
 
     def optimize_transcription_for_social(self, transcription):
-        """Genera una descripción corta optimizada a partir de la transcripción."""
+        """Generate an optimized short-form title from the transcription."""
         try:
-            prompt = f"""Instrucciones:
-            1. Analiza esta transcripción de un video de 30 segundos sobre tecnología
-            2. Genera un título atractivo de MÁXIMO 40 caracteres
-            3. El título debe reflejar el tema técnico principal
-            4. Debe ser en español
-            5. Debe ser llamativo y profesional
-            6. NO uses hashtags ni emojis
-            7. Mantén términos técnicos en inglés cuando sea apropiado
-            8. Enfócate en conceptos de Data Science y programación
-            9. NO agregues prefijos como 'Título:', 'Título sugerido:', etc.
-            10. Devuelve SOLO el título, sin ningún texto adicional
+            prompt = f"""Instructions:
+            1. Analyze this 30-second technology video transcription.
+            2. Generate an eye-catching title with a MAXIMUM of 40 characters.
+            3. The title must reflect the main technical topic.
+            4. The title must be in English.
+            5. Keep the tone professional yet punchy.
+            6. Do not include hashtags or emojis.
+            7. Preserve technical terms as needed.
+            8. Focus on Data Science and programming concepts.
+            9. Do NOT add prefixes such as 'Title:' or similar.
+            10. Return ONLY the title with no extra text.
 
-            Transcripción del video:
+            Video transcription:
             {transcription}"""
 
             response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "Eres un experto en marketing de contenido técnico, especializado en transformar transcripciones en títulos atractivos para redes sociales. Devuelve SOLO el título, sin ningún texto adicional."},
+                    {"role": "system", "content": "You are an expert in technical content marketing, specialized in transforming transcripts into compelling social titles. Return ONLY the title with no extra text."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.7,
@@ -66,13 +66,13 @@ class ContentOptimizer:
 
             title = response.choices[0].message.content.strip()
             
-            # Eliminar cualquier prefijo común que GPT pueda agregar
-            prefixes_to_remove = ["Título:", "Título sugerido:", "Sugerencia:", "Título propuesto:"]
+            # Remove any common prefixes GPT might add
+            prefixes_to_remove = ["Title:", "Suggested Title:", "Suggestion:", "Proposed Title:"]
             for prefix in prefixes_to_remove:
                 if title.startswith(prefix):
                     title = title.replace(prefix, "", 1).strip()
             
-            # Asegurar que no exceda 40 caracteres
+            # Keep the title at or under 40 characters
             if len(title) > 40:
                 last_space = title[:37].rfind(' ')
                 if last_space != -1:
@@ -83,33 +83,33 @@ class ContentOptimizer:
             return title
 
         except Exception as e:
-            logger.error(f"Error al optimizar transcripción: {str(e)}")
-            # En caso de error, extraer una parte relevante de la transcripción
-            words = transcription.split()[:6]  # Tomar las primeras 6 palabras
+            logger.error(f"Error optimizing transcription: {str(e)}")
+            # If optimization fails, fall back to the first few words of the transcript
+            words = transcription.split()[:6]  # Use the first 6 words
             return " ".join(words)[:37] + "..." if len(" ".join(words)) > 40 else " ".join(words)
 
     def generate_hashtags(self, description):
-        """Genera 4 hashtags relevantes basados en la descripción."""
+        """Generate four relevant hashtags based on the description."""
         try:
-            prompt = f"""Instrucciones:
-            1. Genera EXACTAMENTE 4 hashtags relevantes
-            2. Deben estar relacionados con: {description}
-            3. Enfócate en términos técnicos de Data Science y programación
-            4. Usa una mezcla de español e inglés
-            5. NO uses espacios en los hashtags
-            6. Cada hashtag debe tener MÁXIMO 9 caracteres incluyendo el '#'
-            7. Formato: #hashtag1 #hashtag2 #hashtag3 #hashtag4
+            prompt = f"""Instructions:
+            1. Generate EXACTLY 4 relevant hashtags.
+            2. They must relate to: {description}
+            3. Focus on technical terms from Data Science and programming.
+            4. Use concise English terms only.
+            5. Do NOT include spaces inside hashtags.
+            6. Each hashtag must be at MOST 9 characters including '#'.
+            7. Format: #tag1 #tag2 #tag3 #tag4
 
-            Ejemplos válidos:
-            #data #code #dev #ia
+            Example outputs:
+            #data #code #dev #ai
             #py #ml #ds #tech
 
-            Descripción: {description}"""
+            Description: {description}"""
 
             response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "Eres un experto en SEO y hashtags para contenido técnico de Data Science y programación. Genera hashtags cortos y concisos."},
+                    {"role": "system", "content": "You are an SEO expert for technical Data Science and programming content. Generate concise short hashtags."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.7,
@@ -118,17 +118,17 @@ class ContentOptimizer:
 
             hashtags = response.choices[0].message.content.strip()
             
-            # Procesar y validar cada hashtag
+            # Process and validate each hashtag
             processed_hashtags = []
             for hashtag in hashtags.split():
                 if not hashtag.startswith('#'):
                     hashtag = '#' + hashtag
-                # Limitar a 9 caracteres incluyendo el #
+                # Limit to 9 characters including the '#'
                 if len(hashtag) > 9:
                     hashtag = hashtag[:9]
                 processed_hashtags.append(hashtag)
             
-            # Asegurar que tenemos exactamente 4 hashtags
+            # Ensure we have exactly 4 hashtags
             while len(processed_hashtags) < 4:
                 processed_hashtags.append('#tech')
             processed_hashtags = processed_hashtags[:4]
@@ -136,17 +136,17 @@ class ContentOptimizer:
             return ' '.join(processed_hashtags)
 
         except Exception as e:
-            logger.error(f"Error al generar hashtags: {str(e)}")
+            logger.error(f"Error generating hashtags: {str(e)}")
             return "#ds #dev #py #ai"
 
 class DriveUploader:
     def __init__(self):
-        # IDs de Drive y Sheet
+        # Drive and Sheet IDs
         self.DRIVE_FOLDER_ID = "1XdlovWoQNRjKN6DpOZVcSL3ThgV-L_XL"
         self.SHEET_ID = "1uLAGRvq0H-2G1RHGdzBJkhMPP6D1iWexp4N8bXDEHgk"
         
         try:
-            # Cargar credenciales de la cuenta de servicio
+            # Load service-account credentials
             self.credentials = service_account.Credentials.from_service_account_file(
                 'river-surf-452722-t6-24c6cdaf896b.json',
                 scopes=[
@@ -156,18 +156,18 @@ class DriveUploader:
                 ]
             )
             
-            # Inicializar servicios con la misma cuenta de servicio
+            # Initialize Google services with the same account
             self.drive_service = build('drive', 'v3', credentials=self.credentials)
             self.sheets_service = build('sheets', 'v4', credentials=self.credentials)
             self.youtube = build('youtube', 'v3', credentials=self.credentials)
             
-            logger.info("Servicios de Google inicializados correctamente con cuenta de servicio")
+            logger.info("Google services initialized successfully with the service account")
         except Exception as e:
-            logger.error(f"Error al inicializar servicios de Google: {str(e)}")
+            logger.error(f"Error initializing Google services: {str(e)}")
             raise
 
     def upload_video_to_drive(self, video_path, max_retries=3):
-        """Sube el video a Google Drive usando la cuenta de servicio."""
+        """Upload the video to Google Drive using the service account."""
         retry_count = 0
         while retry_count < max_retries:
             try:
@@ -190,7 +190,7 @@ class DriveUploader:
                     supportsAllDrives=True
                 ).execute()
                 
-                # Configurar permisos para que cualquiera con el enlace pueda ver
+                # Configure link sharing permissions
                 try:
                     self.drive_service.permissions().create(
                         fileId=file.get('id'),
@@ -201,8 +201,8 @@ class DriveUploader:
                         supportsAllDrives=True
                     ).execute()
                 except Exception as perm_error:
-                    # Si falla al configurar permisos, intentar de nuevo
-                    time.sleep(2)  # Esperar 2 segundos antes de reintentar
+                    # Retry if permission configuration fails
+                    time.sleep(2)  # Wait 2 seconds before retrying
                     self.drive_service.permissions().create(
                         fileId=file.get('id'),
                         body={
@@ -212,45 +212,45 @@ class DriveUploader:
                         supportsAllDrives=True
                     ).execute()
                 
-                logger.info(f"Video subido exitosamente a Drive: {file.get('webViewLink')}")
+                logger.info(f"Video uploaded to Drive: {file.get('webViewLink')}")
                 return file.get('webViewLink')
                 
             except Exception as e:
                 retry_count += 1
                 if retry_count < max_retries:
-                    wait_time = 2 ** retry_count  # Espera exponencial
-                    logger.warning(f"Intento {retry_count} fallido. Esperando {wait_time} segundos antes de reintentar...")
+                    wait_time = 2 ** retry_count  # Exponential backoff
+                    logger.warning(f"Attempt {retry_count} failed. Waiting {wait_time} seconds before retrying...")
                     time.sleep(wait_time)
                 else:
-                    logger.error(f"Error al subir video a Drive después de {max_retries} intentos: {str(e)}")
+                    logger.error(f"Failed to upload video to Drive after {max_retries} attempts: {str(e)}")
                     raise
 
     def update_metadata_sheet(self, video_link, optimized_title, hashtags, transcription):
-        """Actualiza el Google Sheet usando la cuenta de servicio."""
+        """Update the Google Sheet using the service account."""
         try:
-            # Preparar los datos para la nueva fila
+            # Prepare data for the new row
             row_data = [
                 [
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # Date
                     video_link,                                     # Link
-                    optimized_title,                               # Título sugerido
+                    optimized_title,                               # Suggested Title
                     hashtags,                                      # Hashtags
                     transcription[:1000],                          # Original Text
-                    "NO"                                           # Approve (por defecto NO)
+                    "NO"                                           # Approve (default NO)
                 ]
             ]
             
-            # Obtener el rango actual de datos
+            # Fetch the current data range
             result = self.sheets_service.spreadsheets().values().get(
                 spreadsheetId=self.SHEET_ID,
-                range='A:F'  # Ahora incluimos la columna F para Approve
+                range='A:F'  # Includes the Approve column
             ).execute()
             
             values = result.get('values', [])
             
             if not values:
-                # Si el sheet está vacío, agregar los títulos primero
-                headers = [["Date", "Link", "Título sugerido", "Hashtags", "Original Text", "Approve"]]
+                # If the sheet is empty, seed headers first
+                headers = [["Date", "Link", "Suggested Title", "Hashtags", "Original Text", "Approve"]]
                 self.sheets_service.spreadsheets().values().update(
                     spreadsheetId=self.SHEET_ID,
                     range='A1:F1',
@@ -259,10 +259,10 @@ class DriveUploader:
                 ).execute()
                 next_row = 2
             else:
-                # Si ya hay datos, agregar después de la última fila
+                # Otherwise append after the last row
                 next_row = len(values) + 1
             
-            # Actualizar el sheet
+            # Update the sheet
             body = {
                 'values': row_data
             }
@@ -274,21 +274,21 @@ class DriveUploader:
                 body=body
             ).execute()
             
-            logger.info(f"Metadata actualizada en el Sheet, fila {next_row}")
+            logger.info(f"Metadata updated in the sheet, row {next_row}")
             
         except Exception as e:
-            logger.error(f"Error al actualizar Sheet: {str(e)}")
+            logger.error(f"Error updating Google Sheet: {str(e)}")
             raise
 
 class YouTubeShortsCreator:
     def __init__(self, num_shorts=10, start_time_minutes=5):
-        # Configurar OpenAI
+        # Configure OpenAI
         api_key = os.getenv('OPENAI_API_KEY')
         if not api_key:
-            raise ValueError("No se encontró la clave API de OpenAI")
+            raise ValueError("OpenAI API key not found")
         self.client = OpenAI(api_key=api_key)
         
-        # Configuración de directorios
+        # Directory setup
         self.output_dir = 'shorts_output'
         self.temp_dir = 'temp'
         self.audio_dir = 'audio_transcription'
@@ -296,19 +296,19 @@ class YouTubeShortsCreator:
         os.makedirs(self.temp_dir, exist_ok=True)
         os.makedirs(self.audio_dir, exist_ok=True)
         
-        # Configuración de procesamiento
-        self.max_duration = 30  # Duración máxima en segundos para los shorts
-        self.num_shorts = num_shorts  # Número de shorts a generar
-        self.start_time_seconds = start_time_minutes * 60  # Convertir minutos a segundos
+        # Processing configuration
+        self.max_duration = 30  # Maximum duration in seconds for each short
+        self.num_shorts = num_shorts  # Number of shorts to generate
+        self.start_time_seconds = start_time_minutes * 60  # Convert minutes to seconds
         
-        # Configuración de costos de API
-        self.whisper_cost_per_minute = 0.006  # Costo de Whisper API por minuto
+        # API cost configuration
+        self.whisper_cost_per_minute = 0.006  # Whisper API cost per minute
         self.gpt35_input_cost_per_1k = 0.0005
         self.gpt35_output_cost_per_1k = 0.0015
         self.estimated_tokens_per_segment = 500
         self.usd_to_cop = 4000
         
-        # Tracking de costos
+        # Cost tracking
         self.real_costs = {
             "whisper_minutes": 0,
             "gpt_input_tokens": 0,
@@ -319,11 +319,11 @@ class YouTubeShortsCreator:
             "gpt_corrections": []
         }
         
-        # Configuración de calidad de audio/video
+        # Audio/video quality configuration
         self.max_workers = multiprocessing.cpu_count()
         self.temp_quality = {
             'audio': {
-                'codec': 'mp3'  # Formato para Whisper API
+                'codec': 'mp3'  # Format for Whisper API
             },
             'video': {
                 'fps': None,
@@ -333,12 +333,12 @@ class YouTubeShortsCreator:
             }
         }
         
-        # Inicializar servicios
+        # Initialize services
         self.drive_uploader = DriveUploader()
         self.content_optimizer = ContentOptimizer(openai_client=self.client)
 
     def extract_video_id(self, url):
-    #!    """Extrae el ID del video de la URL de YouTube."""
+    #!    """Extract the video ID from a YouTube URL."""
         pattern = r'(?:v=|\/)([0-9A-Za-z_-]{11})(?:&|\/|$)'
         match = re.search(pattern, url)
         if match:
@@ -348,29 +348,29 @@ class YouTubeShortsCreator:
     
     
     def download_video(self, url):
-    #!   """Descarga el video de YouTube."""
+    #!   """Download the video from YouTube."""
         def sanitize_filename(filename):
-            # Reemplazar caracteres especiales y espacios
+            # Replace special characters and spaces
             filename = re.sub(r'[^\w\s-]', '', filename)
             filename = re.sub(r'[-\s]+', '_', filename)
             return filename.strip('-_')
 
         try:
             with yt_dlp.YoutubeDL({'format': 'best'}) as ydl:
-                # Primero obtener la información sin descargar
+                # First get metadata without downloading
                 info = ydl.extract_info(url, download=False)
                 
-                # Sanitizar el título para el nombre del archivo
+                # Sanitize the title for the filename
                 safe_title = sanitize_filename(info['title'])
                 output_path = os.path.join(self.output_dir, f"{safe_title}.mp4")
                 
-                # Configurar las opciones con el nombre de archivo sanitizado
+                # Configure options with the sanitized filename
                 ydl_opts = {
                     'format': 'best',
                     'outtmpl': output_path
                 }
                 
-                # Descargar con el nuevo nombre
+                # Download the video with the new name
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl_download:
                     ydl_download.download([url])
                 
@@ -381,11 +381,11 @@ class YouTubeShortsCreator:
                     'duration': info.get('duration', 0)
                 }
         except Exception as e:
-            logger.error(f"Error al descargar el video: {e}")
+            logger.error(f"Error downloading the video: {e}")
             raise
 
     def get_video_transcript(self, video_id):
-        #!"""Obtiene la transcripción del video usando la API de YouTube."""
+        #!"""Retrieve the video transcript using the YouTube API."""
         try:
             captions = self.youtube.captions().list(
                 part='snippet',
@@ -401,47 +401,47 @@ class YouTubeShortsCreator:
                 return subtitle
             return None
         except Exception as e:
-            logger.warning(f"No se pudo obtener la transcripción: {e}")
+            logger.warning(f"Unable to obtain transcript: {e}")
             return None
 
     
     
     def analyze_video_content(self, video_info):
-        """Extrae segmentos aleatorios del video para crear shorts."""
+        """Extract random segments from the video to produce shorts."""
         video = None
         try:
-            logger.info("Analizando el contenido del video...")
-            logger.info(f"Intentando abrir el archivo: {video_info['path']}")
+            logger.info("Analyzing video content...")
+            logger.info(f"Attempting to open file: {video_info['path']}")
             
-            # Verificar que el archivo existe
+            # Ensure the file exists
             if not os.path.exists(video_info['path']):
-                logger.error(f"El archivo no existe: {video_info['path']}")
+                logger.error(f"File not found: {video_info['path']}")
                 return []
             
-            # Cargar el video
+            # Load the video
             video = VideoFileClip(video_info['path'])
             
-            # Extraer el segmento de video que nos interesa analizar
+            # Extract the portion of the video we want to analyze
             start_after = self.start_time_seconds
             available_duration = video.duration - start_after - self.max_duration
             
-            # Verificar si hay suficiente duración
+            # Ensure there is enough duration left
             if available_duration < self.max_duration:
-                logger.warning(f"El video no tiene suficiente duración después del minuto {self.start_time_seconds//60}")
+                logger.warning(f"The video is not long enough after minute {self.start_time_seconds//60}")
                 return []
             
-            logger.info(f"Extrayendo segmentos desde el segundo {start_after}...")
+            logger.info(f"Extracting segments starting at second {start_after}...")
             
-            # Calcular cuántos segmentos podemos extraer
+            # Calculate the number of segments we can extract
             max_possible_segments = int(available_duration // self.max_duration)
             
             if max_possible_segments < self.num_shorts:
-                logger.warning(f"Solo se pueden extraer {max_possible_segments} segmentos del video")
+                logger.warning(f"Only {max_possible_segments} segments can be extracted from this video")
                 num_segments = max_possible_segments
             else:
                 num_segments = self.num_shorts
             
-            # Generar tiempos de inicio aleatorios
+            # Generate potential start times
             possible_start_times = []
             current_time = start_after
             
@@ -449,27 +449,27 @@ class YouTubeShortsCreator:
                 possible_start_times.append(current_time)
                 current_time += self.max_duration
             
-            # Seleccionar tiempos de inicio aleatorios
+            # Randomly select start times
             selected_times = random.sample(possible_start_times, min(num_segments, len(possible_start_times)))
-            selected_times.sort()  # Ordenar cronológicamente
+            selected_times.sort()  # Sort chronologically
             
-            # Crear los segmentos
+            # Build the segment list
             segments = []
             for start_time in selected_times:
                 segments.append({
                     "start_time": start_time,
-                    "description": f"Segmento desde {start_time} hasta {start_time + self.max_duration}",
+                    "description": f"Segment from {start_time} to {start_time + self.max_duration}",
                     "duration": self.max_duration
                 })
             
             if segments:
-                logger.info(f"Se han seleccionado {len(segments)} segmentos aleatorios.")
+                logger.info(f"Selected {len(segments)} random segments.")
                 return segments
             
             return []
                 
         except Exception as e:
-            logger.error(f"Error al analizar el contenido: {str(e)}")
+            logger.error(f"Error analyzing content: {str(e)}")
             return []
         finally:
             if video is not None:
@@ -480,18 +480,18 @@ class YouTubeShortsCreator:
 
     
     def detect_voice_segments(self, audio_path, min_duration=1.0):
-        #!"""Detecta segmentos donde hay voz en el audio."""
+        #!"""Detect regions of speech within the audio."""
         try:
-            # Cargar el audio
+            # Load audio
             y, sr = librosa.load(audio_path)
             
-            # Calcular la energía del audio
+            # Calculate audio energy
             energy = librosa.feature.rms(y=y)[0]
             
-            # Calcular el umbral de energía (ajustable según necesidad)
+            # Calculate energy threshold (tunable if needed)
             threshold = np.mean(energy) * 1.5
             
-            # Encontrar segmentos donde la energía supera el umbral
+            # Identify segments where energy exceeds the threshold
             voice_segments = []
             is_voice = False
             start_time = 0
@@ -510,85 +510,85 @@ class YouTubeShortsCreator:
             
             return voice_segments
         except Exception as e:
-            logger.error(f"Error al detectar segmentos de voz: {e}")
+            logger.error(f"Error detecting voice segments: {e}")
             return []
 
     def adjust_segment_to_voice(self, video_path, start_time, end_time):
-        #!"""Ajusta los tiempos del segmento para comenzar con voz."""
+        #!"""Adjust segment boundaries to align with detected voice."""
         try:
-            # Extraer el audio del segmento
+            # Extract segment audio
             video = VideoFileClip(video_path)
             audio = video.audio
             
-            # Guardar el audio temporalmente
+            # Save audio temporarily
             temp_audio_path = os.path.join(self.temp_dir, "temp_audio.wav")
             audio.write_audiofile(temp_audio_path)
             
-            # Detectar segmentos de voz
+            # Detect voice segments
             voice_segments = self.detect_voice_segments(temp_audio_path)
             
-            # Encontrar el segmento de voz más cercano al inicio
+            # Find the nearest voice segment to the start
             if voice_segments:
                 for vs_start, vs_end in voice_segments:
                     if vs_start >= start_time and vs_start < end_time:
                         start_time = vs_start
                         break
             
-            # Limpiar
+            # Clean up
             os.remove(temp_audio_path)
             video.close()
             
             return start_time, end_time
         except Exception as e:
-            logger.error(f"Error al ajustar segmento a voz: {e}")
+            logger.error(f"Error aligning segment to voice: {e}")
             return start_time, end_time
 
     
     
     def create_vertical_video(self, clip):
-        #!"""Crea un video vertical manteniendo la calidad original."""
+        #!"""Create a vertical video while preserving the original quality."""
         try:
-            # Dimensiones del video vertical
+            # Vertical video dimensions
             target_height = 1920
             target_width = 1080
             
-            # Calcular el factor de escala manteniendo la relación de aspecto
+            # Calculate the scale factor while preserving aspect ratio
             width_scale = target_width / clip.w
             height_scale = target_height / clip.h
             scale_factor = min(width_scale, height_scale)
             
-            # Redimensionar el clip manteniendo la calidad original
+            # Resize clip while keeping quality
             scaled_clip = clip.resize(width=int(clip.w * scale_factor))
             
-            # Crear fondo negro
+            # Create a black background
             background = ColorClip(
                 size=(target_width, target_height),
                 color=(0, 0, 0),
                 duration=clip.duration
             )
             
-            # Posicionar el clip en el centro
+            # Center the clip
             x_center = (target_width - scaled_clip.w) // 2
             y_center = (target_height - scaled_clip.h) // 2
             
-            # Combinar clips
+            # Combine clips
             return CompositeVideoClip(
                 [background, scaled_clip.set_position((x_center, y_center))],
                 size=(target_width, target_height)
             )
             
         except Exception as e:
-            logger.error(f"Error al crear video vertical: {str(e)}")
+            logger.error(f"Error creating vertical video: {str(e)}")
             raise
 
     def track_whisper_usage(self, audio_duration_seconds):
-        """Rastrea el uso real de Whisper."""
+        """Track actual Whisper usage."""
         minutes_used = audio_duration_seconds / 60
         self.real_costs["whisper_minutes"] += minutes_used
         cost_usd = minutes_used * self.whisper_cost_per_minute
         cost_cop = cost_usd * self.usd_to_cop
         
-        # Guardar detalles de esta transcripción
+        # Store details for this transcription
         self.detailed_costs["whisper_transcriptions"].append({
             "duration_minutes": minutes_used,
             "cost_usd": cost_usd,
@@ -599,7 +599,7 @@ class YouTubeShortsCreator:
         return cost_usd
 
     def track_gpt_usage(self, response):
-        #!"""Rastrea el uso real de tokens de GPT-3.5."""
+        #!"""Track actual token usage for GPT-3.5."""
         if hasattr(response, 'usage'):
             input_tokens = response.usage.prompt_tokens
             output_tokens = response.usage.completion_tokens
@@ -615,7 +615,7 @@ class YouTubeShortsCreator:
             output_cost_cop = output_cost_usd * self.usd_to_cop
             total_cost_cop = total_cost_usd * self.usd_to_cop
             
-            # Nuevo: Guardar detalles de esta corrección
+            # Store details for this correction
             self.detailed_costs["gpt_corrections"].append({
                 "input_tokens": input_tokens,
                 "output_tokens": output_tokens,
@@ -626,17 +626,17 @@ class YouTubeShortsCreator:
                 "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
             })
             
-            logger.info("\nCosto real de GPT-3.5 para esta petición:")
-            logger.info(f"  Tokens de entrada: {input_tokens}")
-            logger.info(f"  Tokens de salida: {output_tokens}")
-            logger.info(f"  Costo entrada USD: ${input_cost_usd:.4f}")
-            logger.info(f"  Costo entrada COP: ${input_cost_cop:,.2f}")
+            logger.info("\nActual GPT-3.5 cost for this request:")
+            logger.info(f"  Input tokens: {input_tokens}")
+            logger.info(f"  Output tokens: {output_tokens}")
+            logger.info(f"  Input cost USD: ${input_cost_usd:.4f}")
+            logger.info(f"  Input cost COP: ${input_cost_cop:,.2f}")
             
             return total_cost_usd
         return 0
 
     def get_total_real_costs(self):
-        #!"""Calcula los costos reales totales."""
+        #!"""Compute total actual costs."""
         whisper_cost_usd = self.real_costs["whisper_minutes"] * self.whisper_cost_per_minute
         gpt_input_cost_usd = (self.real_costs["gpt_input_tokens"] / 1000) * self.gpt35_input_cost_per_1k
         gpt_output_cost_usd = (self.real_costs["gpt_output_tokens"] / 1000) * self.gpt35_output_cost_per_1k
@@ -662,12 +662,12 @@ class YouTubeShortsCreator:
         }
 
     def correct_text_with_gpt(self, text):
-        """Corrige errores ortográficos en el texto usando GPT-3.5."""
+        """Use GPT-3.5 to correct spelling and grammar in the text."""
         try:
-            # Si el texto es muy largo, dividirlo en fragmentos
-            max_chars_per_chunk = 4000  # Aproximadamente 1000 tokens
+            # Split text into chunks if it is too long
+            max_chars_per_chunk = 4000  # Roughly 1k tokens
             if len(text) > max_chars_per_chunk:
-                # Dividir el texto en oraciones
+                # Split text into sentences
                 sentences = text.replace('? ', '?|').replace('! ', '!|').replace('. ', '.|').split('|')
                 chunks = []
                 current_chunk = []
@@ -676,7 +676,7 @@ class YouTubeShortsCreator:
                 for sentence in sentences:
                     sentence_length = len(sentence)
                     if current_length + sentence_length > max_chars_per_chunk:
-                        # Guardar el chunk actual y empezar uno nuevo
+                        # Persist the current chunk and start a new one
                         chunks.append(' '.join(current_chunk))
                         current_chunk = [sentence]
                         current_length = sentence_length
@@ -684,66 +684,66 @@ class YouTubeShortsCreator:
                         current_chunk.append(sentence)
                         current_length += sentence_length
                 
-                # Agregar el último chunk si existe
+                # Append the last chunk if it exists
                 if current_chunk:
                     chunks.append(' '.join(current_chunk))
                 
-                # Corregir cada chunk por separado
+                # Correct each chunk separately
                 corrected_chunks = []
                 for chunk in chunks:
                     try:
                         corrected_chunk = self._correct_text_chunk(chunk)
                         corrected_chunks.append(corrected_chunk)
                     except Exception as e:
-                        logger.error(f"Error al corregir chunk: {str(e)}")
-                        corrected_chunks.append(chunk)  # Mantener el texto original si hay error
+                        logger.error(f"Error correcting chunk: {str(e)}")
+                        corrected_chunks.append(chunk)  # Keep original text if correction fails
                 
-                # Unir los chunks corregidos
+                # Merge corrected chunks
                 return ' '.join(corrected_chunks)
             else:
-                # Si el texto es corto, corregirlo directamente
+                # Correct the text directly if short enough
                 return self._correct_text_chunk(text)
 
         except Exception as e:
-            logger.error(f"Error al corregir texto con GPT-3.5: {str(e)}")
+            logger.error(f"Error correcting text with GPT-3.5: {str(e)}")
             return text
 
     def _correct_text_chunk(self, text):
-        """Corrige un fragmento de texto usando GPT-3.5."""
-        prompt = f"""Instrucciones:
-        1. Corrige errores ortográficos y de puntuación en español
-        2. MANTÉN sin modificar todos los términos técnicos como:
+        """Correct a chunk of text using GPT-3.5."""
+        prompt = f"""Instructions:
+        1. Fix grammar and punctuation mistakes in English.
+        2. KEEP every technical term exactly as written, including:
            - Data Science, Data Engineering, Data Warehouse
-           - Delta Lake,Business Intelligence , Data Lakehouse , Databricks
+           - Delta Lake, Business Intelligence, Data Lakehouse, Databricks
            - Machine Learning, Deep Learning, AI
-           - Lenguajes: Python, SQL, R, Java, JavaScript
+           - Languages: Python, SQL, R, Java, JavaScript
            - Frameworks: TensorFlow, PyTorch, Pandas, NumPy
-           - Cloud: AWS, Azure, GCP , nube
+           - Cloud: AWS, Azure, GCP
            - Big Data: Hadoop, Spark, Kafka
-        3. NO agregues ni quites información
-        4. NO agregues prefijos o texto adicional
-        5. Mantén el mismo tono y significado del texto original
+        3. Do NOT add or remove information.
+        4. Do NOT add prefixes or extra text.
+        5. Maintain the original tone and meaning.
 
-        Texto a corregir: {text}"""
+        Text to correct: {text}"""
 
         response = self.client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "Eres un corrector ortográfico experto en español especializado en contenido técnico de Data Science y programación."},
+                {"role": "system", "content": "You are an expert English proofreader for technical Data Science and programming content."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3,
             max_tokens=4000
         )
 
-        # Rastrear el uso de tokens
+        # Track token usage
         self.track_gpt_usage(response)
 
-        # Extraer y limpiar el texto corregido
+        # Extract and clean corrected text
         corrected_text = response.choices[0].message.content.strip()
         
-        # Eliminar cualquier prefijo común que GPT pueda agregar
-        prefixes_to_remove = ["Texto corregido:", "Texto:", "Corrección:", "Resultado:"]
+        # Remove any prefix the model might add
+        prefixes_to_remove = ["Corrected text:", "Text:", "Correction:", "Result:"]
         for prefix in prefixes_to_remove:
             if corrected_text.startswith(prefix):
                 corrected_text = corrected_text.replace(prefix, "", 1).strip()
@@ -751,10 +751,10 @@ class YouTubeShortsCreator:
         return corrected_text
 
     def get_audio_transcription(self, clip):
-        """Transcribe el audio asegurando que coincida exactamente con el contenido del video."""
+        """Transcribe the audio, ensuring it matches the video content accurately."""
         try:
             if not clip.audio:
-                logger.error("El clip no tiene audio")
+                logger.error("Clip has no audio track")
                 return []
             
             temp_dir = os.path.join(self.temp_dir, 'audio_transcription')
@@ -764,7 +764,7 @@ class YouTubeShortsCreator:
                 timestamp = time.strftime("%Y%m%d_%H%M%S")
                 audio_path = os.path.join(temp_dir, f"audio_{timestamp}.mp3")
                 
-                # Guardar el audio con alta calidad
+                # Export audio with high quality
                 clip.audio.write_audiofile(
                     audio_path,
                     codec='mp3',
@@ -776,7 +776,7 @@ class YouTubeShortsCreator:
                 )
                 
                 def transcribe_with_size(audio_file, max_retries=3):
-                    """Intenta transcribir el audio, si falla lo divide en partes más pequeñas."""
+                    """Attempt to transcribe the audio, splitting into smaller parts if needed."""
                     if max_retries <= 0:
                         return []
                     
@@ -785,14 +785,14 @@ class YouTubeShortsCreator:
                             response = self.client.audio.transcriptions.create(
                                 model="whisper-1",
                                 file=f,
-                                language="es",
-                                response_format="json"  # Cambiado a json simple
+                                language="en",
+                                response_format="json"
                             )
                         
-                        # Solo registrar el costo una vez que la transcripción es exitosa
+                        # Track cost only once transcription succeeds
                         self.track_whisper_usage(clip.duration)
                         
-                        # Procesar la respuesta en formato json simple
+                        # Process the simple JSON response
                         if hasattr(response, 'text') and response.text.strip():
                             corrected_text = self.correct_text_with_gpt(response.text)
                             return [{
@@ -804,38 +804,38 @@ class YouTubeShortsCreator:
                         return []
                         
                     except Exception as e:
-                        logger.error(f"Error en transcripción: {str(e)}")
+                        logger.error(f"Transcription error: {str(e)}")
                         if max_retries > 1:
-                            # Dividir el audio en dos partes
+                            # Split the audio into two halves
                             audio = AudioSegment.from_file(audio_file if isinstance(audio_file, str) else audio_file.name)
                             mid_point = len(audio) // 2
                             
-                            # Guardar primera mitad
+                            # Save first half
                             first_half = audio[:mid_point]
                             first_half_path = f"{audio_path}_part1.mp3"
                             first_half.export(first_half_path, format="mp3")
                             
-                            # Guardar segunda mitad
+                            # Save second half
                             second_half = audio[mid_point:]
                             second_half_path = f"{audio_path}_part2.mp3"
                             second_half.export(second_half_path, format="mp3")
                             
-                            # Transcribir cada mitad recursivamente
+                            # Transcribe each half recursively
                             first_transcription = transcribe_with_size(first_half_path, max_retries - 1)
                             second_transcription = transcribe_with_size(second_half_path, max_retries - 1)
                             
-                            # Limpiar archivos temporales
+                            # Remove temporary files
                             try:
                                 os.remove(first_half_path)
                                 os.remove(second_half_path)
                             except:
                                 pass
                             
-                            # Combinar resultados
+                            # Combine results
                             return first_transcription + second_transcription
                         return []
                 
-                # Intentar transcribir el archivo completo
+                # Try to transcribe the entire file first
                 transcriptions = transcribe_with_size(audio_path)
                 if transcriptions:
                     return transcriptions
@@ -843,7 +843,7 @@ class YouTubeShortsCreator:
                 return []
                 
             finally:
-                # Limpiar archivos temporales
+                # Clean up temporary files
                 if os.path.exists(audio_path):
                     try:
                         os.remove(audio_path)
@@ -855,31 +855,30 @@ class YouTubeShortsCreator:
                     pass
             
         except Exception as e:
-            logger.error(f"Error general en la transcripción: {str(e)}")
+            logger.error(f"General transcription error: {str(e)}")
             return []
 
     def create_subtitles(self, clip, segments):
-        #!"""Crea subtítulos sincronizados con el habla con efectos llamativos."""
+        #!"""Create speech-synced subtitles with subtle visual effects."""
         try:
             subtitle_clips = []
             clip_width = clip.w
             clip_height = clip.h
             
-            # Configuración de tamaño fijo para todos los subtítulos
+            # Fixed sizing for all subtitles
             fontsize = min(50, int(clip_height * 3.5))
             max_width = int(clip_width * 0.85)
-            # Altura fija para el contenedor de texto
-            fixed_height = int(clip_height * 0.15)  # 15% de la altura del video
+            fixed_height = int(clip_height * 0.15)  # 15% of the video height
             
             for segment in segments:
                 start_time = segment["start"]
                 end_time = segment["end"]
                 text = segment["text"].strip()
-                duration = end_time - start_time  # Mantener la duración original del audio
+                duration = end_time - start_time  # Match the original audio duration
                 
-                # Dividir el texto en segmentos más cortos si es muy largo
+                # Split text into shorter sub-segments if necessary
                 words = text.split()
-                if len(words) > 7:  # Si hay más de 8 palabras, dividimos en sub-segmentos
+                if len(words) > 7:
                     sub_segments = []
                     current_segment = []
                     for word in words:
@@ -887,13 +886,11 @@ class YouTubeShortsCreator:
                         if len(current_segment) >= 4:
                             sub_segments.append(" ".join(current_segment))
                             current_segment = []
-                    if current_segment:  # Agregar las palabras restantes
+                    if current_segment:
                         sub_segments.append(" ".join(current_segment))
                     
-                    # Mantener la duración proporcional al audio original
                     sub_duration = duration / len(sub_segments)
                     
-                    # Crear un clip para cada sub-segmento
                     for i, sub_text in enumerate(sub_segments):
                         sub_start = start_time + (i * sub_duration)
                         
@@ -904,7 +901,7 @@ class YouTubeShortsCreator:
                                 color='white',
                                 font='Arial',
                                 method='label',
-                                size=(max_width, fixed_height),  # Usar altura fija
+                                size=(max_width, fixed_height),
                                 stroke_color='white',
                                 stroke_width=2.0,
                                 bg_color='black'
@@ -925,7 +922,7 @@ class YouTubeShortsCreator:
                             subtitle_clips.append(txt_comp)
                             
                         except Exception as e:
-                            logger.error(f"Error al procesar sub-segmento: {str(e)}")
+                            logger.error(f"Error processing subtitle chunk: {str(e)}")
                             continue
                 else:
                     try:
@@ -935,7 +932,7 @@ class YouTubeShortsCreator:
                             color='white',
                             font='Arial',
                             method='label',
-                            size=(max_width, fixed_height),  # Usar altura fija
+                            size=(max_width, fixed_height),
                             stroke_color='white',
                             stroke_width=2.0,
                             bg_color='black'
@@ -949,79 +946,79 @@ class YouTubeShortsCreator:
                         txt_comp = (txt_clip
                                   .set_position(('center', y_position))
                                   .set_start(start_time)
-                                  .set_duration(duration)  # Usar la duración original del audio
+                                  .set_duration(duration)
                                   .crossfadein(fade_duration)
                                   .crossfadeout(fade_duration))
                         
                         subtitle_clips.append(txt_comp)
                         
                     except Exception as e:
-                        logger.error(f"Error al procesar subtítulo individual: {str(e)}")
+                        logger.error(f"Error processing subtitle: {str(e)}")
                         continue
             
             return subtitle_clips
             
         except Exception as e:
-            logger.error(f"Error al crear subtítulos: {str(e)}")
+            logger.error(f"Error creating subtitles: {str(e)}")
             return []
 
     
     def show_detailed_costs_summary(self):
-        #!"""Muestra un resumen detallado de todos los costos."""
-        logger.info("\n=== RESUMEN DETALLADO DE COSTOS ===")
+        #!"""Display a detailed breakdown of all costs."""
+        logger.info("\n=== DETAILED COST SUMMARY ===")
         
-        # Resumen de Whisper
+        # Whisper summary
         total_whisper_minutes = sum(t["duration_minutes"] for t in self.detailed_costs["whisper_transcriptions"])
         total_whisper_usd = sum(t["cost_usd"] for t in self.detailed_costs["whisper_transcriptions"])
         total_whisper_cop = total_whisper_usd * self.usd_to_cop
         
-        logger.info("\nTranscripciones de Whisper:")
-        logger.info(f"Número total de transcripciones: {len(self.detailed_costs['whisper_transcriptions'])}")
-        logger.info(f"Total minutos procesados: {total_whisper_minutes:.2f}")
-        logger.info(f"Costo total USD: ${total_whisper_usd:.4f}")
-        logger.info(f"Costo total COP: ${total_whisper_cop:,.2f}")
+        logger.info("\nWhisper transcriptions:")
+        logger.info(f"Total transcriptions: {len(self.detailed_costs['whisper_transcriptions'])}")
+        logger.info(f"Total minutes processed: {total_whisper_minutes:.2f}")
+        logger.info(f"Total cost USD: ${total_whisper_usd:.4f}")
+        logger.info(f"Total cost COP: ${total_whisper_cop:,.2f}")
         
-        # Resumen de GPT-3.5
+        # GPT-3.5 summary
         total_gpt_input_tokens = sum(c["input_tokens"] for c in self.detailed_costs["gpt_corrections"])
         total_gpt_output_tokens = sum(c["output_tokens"] for c in self.detailed_costs["gpt_corrections"])
         total_gpt_usd = sum(c["total_cost_usd"] for c in self.detailed_costs["gpt_corrections"])
         total_gpt_cop = total_gpt_usd * self.usd_to_cop
         
-        logger.info("\nCorrecciones de GPT-3.5:")
-        logger.info(f"Número total de correcciones: {len(self.detailed_costs['gpt_corrections'])}")
-        logger.info(f"Total tokens de entrada: {total_gpt_input_tokens}")
-        logger.info(f"Total tokens de salida: {total_gpt_output_tokens}")
-        logger.info(f"Costo total USD: ${total_gpt_usd:.4f}")
-        logger.info(f"Costo total COP: ${total_gpt_cop:,.2f}")
+        logger.info("\nGPT-3.5 corrections:")
+        logger.info(f"Total corrections: {len(self.detailed_costs['gpt_corrections'])}")
+        logger.info(f"Total input tokens: {total_gpt_input_tokens}")
+        logger.info(f"Total output tokens: {total_gpt_output_tokens}")
+        logger.info(f"Total cost USD: ${total_gpt_usd:.4f}")
+        logger.info(f"Total cost COP: ${total_gpt_cop:,.2f}")
         
-        # Total general
+        # Grand total
         total_usd = total_whisper_usd + total_gpt_usd
         total_cop = total_usd * self.usd_to_cop
         
-        logger.info("\n=== TOTAL GENERAL ===")
+        logger.info("\n=== GRAND TOTAL ===")
         logger.info(f"USD: ${total_usd:.4f}")
         logger.info(f"COP: ${total_cop:,.2f}")
         logger.info("============================")
 
     def process_video(self, url):
-        """Procesa un video de YouTube y genera shorts."""
+        """Process a YouTube video and generate shorts."""
         try:
-            logger.info("Iniciando procesamiento del video...")
+            logger.info("Starting video processing...")
             video_info = self.download_video(url)
             
-            # Calcular y mostrar costos estimados
+            # Calculate and display estimated costs
             video_duration_minutes = video_info['duration'] / 60
             cost_estimate = self.calculate_estimated_cost(video_duration_minutes, self.num_shorts)
             self._show_cost_estimate(cost_estimate)
             
-            # Analizar contenido
+            # Analyze video content
             interesting_segments = self.analyze_video_content(video_info)
             
             if not interesting_segments:
-                logger.warning("No se identificaron segmentos para crear shorts")
+                logger.warning("No segments detected for short creation")
                 return []
             
-            # Procesar cada segmento de manera secuencial
+            # Process each segment sequentially
             created_shorts = []
             video = VideoFileClip(video_info['path'])
             
@@ -1034,29 +1031,29 @@ class YouTubeShortsCreator:
                         end_time = int(video.duration)
                         start_time = end_time - self.max_duration
                     
-                    # Extraer clip
+                    # Extract clip
                     clip = video.subclip(start_time, end_time)
                     
                     try:
-                        # Crear versión vertical
+                        # Create vertical version
                         vertical_clip = self.create_vertical_video(clip)
                         
-                        # Obtener transcripción y crear subtítulos
+                        # Obtain transcription and create subtitles
                         segments = self.get_audio_transcription(clip)
                         
                         if segments:
-                            # Combinar todos los segmentos de texto transcritos para este clip
+                            # Combine all transcribed segments for this clip
                             full_transcription = " ".join([seg["text"] for seg in segments])
                             
-                            # Crear subtítulos
+                            # Create subtitles
                             subtitle_clips = self.create_subtitles(vertical_clip, segments)
                             if subtitle_clips:
                                 vertical_clip = CompositeVideoClip([vertical_clip] + subtitle_clips)
                         
-                            # Guardar el video
+                            # Save the video
                             timestamp = time.strftime("%Y%m%d_%H%M%S")
                             output_path = f"{self.audio_dir}/short_{start_time}_{end_time}_{timestamp}.mp4"
-                            logger.info(f"Guardando video en {output_path}...")
+                            logger.info(f"Saving short to {output_path}...")
                             
                             vertical_clip.write_videofile(
                                 output_path,
@@ -1069,11 +1066,11 @@ class YouTubeShortsCreator:
                                 verbose=False
                             )
                             
-                            # Generar título y hashtags
+                            # Generate title and hashtags
                             optimized_title = self.content_optimizer.optimize_transcription_for_social(full_transcription)
                             hashtags = self.content_optimizer.generate_hashtags(full_transcription)
                             
-                            # Subir a Drive y actualizar Sheet
+                            # Upload to Drive and update the Sheet
                             video_link = self.drive_uploader.upload_video_to_drive(output_path)
                             self.drive_uploader.update_metadata_sheet(
                                 video_link,
@@ -1108,40 +1105,40 @@ class YouTubeShortsCreator:
                 video.close()
             
             if len(created_shorts) < self.num_shorts:
-                logger.warning(f"Se solicitaron {self.num_shorts} shorts pero solo se pudieron crear {len(created_shorts)}")
+                logger.warning(f"Requested {self.num_shorts} shorts but only created {len(created_shorts)}")
             
-            # Mostrar costos reales y resumen detallado
+            # Display actual costs and detailed summary
             self._show_real_costs()
             self.show_detailed_costs_summary()
             
-            logger.info("Proceso completado exitosamente")
+            logger.info("Processing completed successfully")
             return created_shorts
             
         except Exception as e:
-            logger.error(f"Error en el procesamiento del video: {e}")
+            logger.error(f"Error during video processing: {e}")
             raise
 
     def calculate_estimated_cost(self, video_duration_minutes, num_shorts):
-        #!"""Calcula el costo estimado del procesamiento del video."""
+        #!"""Calculate the estimated processing cost."""
         try:
-            # Tasa de cambio aproximada (1 USD = 4000 COP)
+            # Approximate exchange rate (1 USD = 4000 COP)
             usd_to_cop = 4000
             
-            # Costo de Whisper (transcripción completa)
+            # Whisper cost (full transcription)
             whisper_cost_usd = video_duration_minutes * self.whisper_cost_per_minute
             whisper_cost_cop = whisper_cost_usd * usd_to_cop
             
-            # Costo estimado de GPT-3.5 por cada short
-            # Estimamos tokens de entrada y salida por cada segmento
+            # Estimated GPT-3.5 cost per short
+            # Estimate input and output tokens per segment
             total_input_tokens = num_shorts * self.estimated_tokens_per_segment
-            total_output_tokens = num_shorts * 100  # Estimamos 100 tokens por respuesta
+            total_output_tokens = num_shorts * 100  # Approximate 100 tokens per response
             
             gpt_input_cost_usd = (total_input_tokens / 1000) * self.gpt35_input_cost_per_1k
             gpt_output_cost_usd = (total_output_tokens / 1000) * self.gpt35_output_cost_per_1k
             
             total_cost_usd = whisper_cost_usd + gpt_input_cost_usd + gpt_output_cost_usd
             
-            # Convertir a COP
+            # Convert to COP
             gpt_input_cost_cop = gpt_input_cost_usd * usd_to_cop
             gpt_output_cost_cop = gpt_output_cost_usd * usd_to_cop
             total_cost_cop = total_cost_usd * usd_to_cop
@@ -1160,85 +1157,85 @@ class YouTubeShortsCreator:
             return cost_details
             
         except Exception as e:
-            logger.error(f"Error al calcular costos: {str(e)}")
+            logger.error(f"Error calculating costs: {str(e)}")
             return None
 
     def _show_cost_estimate(self, cost_estimate):
-        #!"""Muestra los costos estimados de manera formateada."""
+        #!"""Show the estimated costs in a formatted output."""
         if cost_estimate:
-            logger.info("\nCosto ESTIMADO del procesamiento:")
+            logger.info("\nESTIMATED processing cost:")
             logger.info("----------------------------------------")
-            logger.info(f"Whisper (transcripción):")
+            logger.info("Whisper (transcription):")
             logger.info(f"  USD: ${cost_estimate['whisper_cost_usd']}")
             logger.info(f"  COP: ${cost_estimate['whisper_cost_cop']:,.2f}")
             logger.info(f"GPT-3.5 (entrada):")
             logger.info(f"  USD: ${cost_estimate['gpt_input_cost_usd']}")
             logger.info(f"  COP: ${cost_estimate['gpt_input_cost_cop']:,.2f}")
-            logger.info(f"GPT-3.5 (salida):")
+            logger.info("GPT-3.5 (output):")
             logger.info(f"  USD: ${cost_estimate['gpt_output_cost_usd']}")
             logger.info(f"  COP: ${cost_estimate['gpt_output_cost_cop']:,.2f}")
             logger.info("----------------------------------------")
-            logger.info(f"Total estimado:")
+            logger.info("Estimated total:")
             logger.info(f"  USD: ${cost_estimate['total_cost_usd']}")
             logger.info(f"  COP: ${cost_estimate['total_cost_cop']:,.2f}")
             logger.info("----------------------------------------")
 
     def _show_real_costs(self):
-        #!"""Muestra los costos reales del procesamiento."""
+        #!"""Display the actual processing costs."""
         real_costs = self.get_total_real_costs()
-        logger.info("\nCostos REALES del procesamiento:")
+        logger.info("\nACTUAL processing costs:")
         logger.info("========================================")
         logger.info("Whisper:")
-        logger.info(f"  Minutos procesados: {real_costs['total_whisper_minutes']}")
+        logger.info(f"  Minutes processed: {real_costs['total_whisper_minutes']}")
         logger.info(f"  USD: ${real_costs['whisper_cost_usd']}")
         logger.info(f"  COP: ${real_costs['whisper_cost_cop']:,.2f}")
         logger.info("\nGPT-3.5:")
-        logger.info(f"  Tokens de entrada: {real_costs['total_gpt_input_tokens']}")
-        logger.info(f"  Tokens de salida: {real_costs['total_gpt_output_tokens']}")
-        logger.info(f"  Costo entrada USD: ${real_costs['gpt_input_cost_usd']}")
-        logger.info(f"  Costo entrada COP: ${real_costs['gpt_input_cost_cop']:,.2f}")
-        logger.info(f"  Costo salida USD: ${real_costs['gpt_output_cost_usd']}")
-        logger.info(f"  Costo salida COP: ${real_costs['gpt_output_cost_cop']:,.2f}")
+        logger.info(f"  Input tokens: {real_costs['total_gpt_input_tokens']}")
+        logger.info(f"  Output tokens: {real_costs['total_gpt_output_tokens']}")
+        logger.info(f"  Input cost USD: ${real_costs['gpt_input_cost_usd']}")
+        logger.info(f"  Input cost COP: ${real_costs['gpt_input_cost_cop']:,.2f}")
+        logger.info(f"  Output cost USD: ${real_costs['gpt_output_cost_usd']}")
+        logger.info(f"  Output cost COP: ${real_costs['gpt_output_cost_cop']:,.2f}")
         logger.info("----------------------------------------")
-        logger.info("TOTAL REAL:")
+        logger.info("ACTUAL TOTAL:")
         logger.info(f"  USD: ${real_costs['total_cost_usd']}")
         logger.info(f"  COP: ${real_costs['total_cost_cop']:,.2f}")
         logger.info("========================================")
 
 
-#all: inicio del programa
+#all: Program entry point
 def main():
-    # Verificar variables de entorno
+    # Validate environment variables
     if not os.getenv('OPENAI_API_KEY') or not os.getenv('YOUTUBE_API_KEY'):
-        print("Error: Se requieren las claves de API de OpenAI y YouTube.")
-        print("Por favor, crea un archivo .env con:")
-        print("OPENAI_API_KEY=tu_clave_de_openai")
-        print("YOUTUBE_API_KEY=tu_clave_de_youtube")
+        print("Error: OpenAI and YouTube API keys are required.")
+        print("Please create a .env file with:")
+        print("OPENAI_API_KEY=your_openai_key")
+        print("YOUTUBE_API_KEY=your_youtube_key")
         return
 
-    #all: Configuración personalizable
-    num_shorts = 1  # Número de shorts que quieres generar
-    start_time_minutes = 10  # Minuto desde donde empezar a analizar el video
+    #all: Customizable configuration
+    num_shorts = 1  # Number of shorts to generate
+    start_time_minutes = 10  # Minute mark to start analyzing the video
     
-    # Crear instancia del creador de shorts
+    # Create the shorts creator instance
     creator = YouTubeShortsCreator(num_shorts=num_shorts, start_time_minutes=start_time_minutes)
     url = "https://www.youtube.com/watch?v=JzoXW7_aoag&t=489s"
     
     try:
-        print("\nConfiguración:")
-        print(f"- Número de shorts: {num_shorts}")
-        print(f"- Tiempo de inicio: {start_time_minutes} minutos")
-        print("\nIniciando procesamiento...")
+        print("\nConfiguration:")
+        print(f"- Number of shorts: {num_shorts}")
+        print(f"- Start time: {start_time_minutes} minutes")
+        print("\nStarting processing...")
         
         shorts = creator.process_video(url)
-        print("\n¡Proceso completado!")
-        print(f"Shorts generados (comenzando desde el minuto {start_time_minutes}):")
+        print("\nProcess completed!")
+        print(f"Generated shorts (starting at minute {start_time_minutes}):")
         for i, short in enumerate(shorts, 1):
-            print(f"\nShort {i} de {num_shorts}:")
-            print(f"Ubicación: {short['path']}")
-            print(f"Descripción: {short['transcription']}")
+            print(f"\nShort {i} of {num_shorts}:")
+            print(f"Location: {short['path']}")
+            print(f"Transcript: {short['transcription']}")
     except Exception as e:
-        print(f"Error durante el proceso: {e}")
+        print(f"Error during processing: {e}")
 
 if __name__ == "__main__":
     main() 
