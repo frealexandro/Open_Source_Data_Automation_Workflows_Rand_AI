@@ -1,4 +1,4 @@
-# Open Source Data Automation Workflows Rand AI 
+# Framework Open Source Data Automation Workflows Rand AI 
 
 ![Automation workflow diagram](assets/rand_data_work_flow_ai.jpg)
 
